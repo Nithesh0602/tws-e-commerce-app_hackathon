@@ -29,24 +29,20 @@ pipeline {
             }
         }
 
-        // 🔥 New stage to sync lockfile
+        // 🔥 New stage to sync lockfile inside Node container
         stage('Sync NPM Lockfile') {
             steps {
                 script {
-                    // Clean old modules and lockfile
-                    sh 'rm -rf node_modules package-lock.json'
+                    docker.image('node:18-alpine').inside {
+                        sh 'rm -rf node_modules package-lock.json'
+                        sh 'npm install'
 
-                    // Reinstall dependencies to regenerate lockfile
-                    sh 'npm install'
-
-                    // Configure Git identity for CI commit
-                    sh 'git config user.email "ci-bot@example.com"'
-                    sh 'git config user.name "CI Bot"'
-
-                    // Commit and push updated lockfile
-                    sh 'git add package-lock.json'
-                    sh 'git commit -m "chore: sync package-lock.json with package.json" || echo "No changes to commit"'
-                    sh 'git push origin ${env.GIT_BRANCH}'
+                        sh 'git config user.email "ci-bot@example.com"'
+                        sh 'git config user.name "CI Bot"'
+                        sh 'git add package-lock.json'
+                        sh 'git commit -m "chore: sync package-lock.json with package.json" || echo "No changes to commit"'
+                        sh 'git push origin ${env.GIT_BRANCH}'
+                    }
                 }
             }
         }
