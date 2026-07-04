@@ -32,15 +32,20 @@ stage('Sync NPM Lockfile') {
     steps {
         script {
             docker.image('node:18-alpine').inside {
-                // Create a writable cache directory inside the workspace
+                // Install git inside the container
+                sh 'apk add --no-cache git'
+
+                // Create a writable cache directory for npm
                 sh 'mkdir -p /var/lib/jenkins/workspace/easyshop/.npm-cache'
 
-                // Point npm to use that cache
+                // Run npm install with custom cache
                 sh 'export NPM_CONFIG_CACHE=/var/lib/jenkins/workspace/easyshop/.npm-cache && npm install'
 
-                // Configure Git identity for CI commit
+                // Configure Git identity
                 sh 'git config user.email "ci-bot@example.com"'
                 sh 'git config user.name "CI Bot"'
+
+                // Commit and push updated lockfile
                 sh 'git add package-lock.json'
                 sh 'git commit -m "chore: sync package-lock.json with package.json" || echo "No changes to commit"'
                 sh 'git push origin ${env.GIT_BRANCH}'
@@ -48,6 +53,7 @@ stage('Sync NPM Lockfile') {
         }
     }
 }
+
 
         
         stage('Build Docker Images') {
