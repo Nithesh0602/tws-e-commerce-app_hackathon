@@ -24,7 +24,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 script {
-                    clone("https://github.com/lax66/tws-e-commerce-app_hackathon.git","master")
+                    clone("https://github.com/Nithesh0602/tws-e-commerce-app_hackathon.git","master")
                 }
             }
         }
@@ -114,8 +114,8 @@ pipeline {
                         imageTag: env.DOCKER_IMAGE_TAG,
                         manifestsPath: 'kubernetes',
                         gitCredentials: 'github-credentials',
-                        gitUserName: 'Jenkins CI',
-                        gitUserEmail: 'misc.lucky66@gmail.com'
+                        gitUserName: 'Nithesh',
+                        gitUserEmail: 'kpnitheshmech@gmail.com'
                     )
                 }
             }
