@@ -4,7 +4,6 @@ pipeline {
     agent any
     
     environment {
-        // Update the main app image name to match the deployment file
         DOCKER_IMAGE_NAME = 'nithesh06/easyshop-app'
         DOCKER_MIGRATION_IMAGE_NAME = 'nithesh06/easyshop-migration'
         DOCKER_IMAGE_TAG = "${BUILD_NUMBER}"
@@ -29,11 +28,12 @@ pipeline {
             }
         }
 
-        // 🔥 New stage to sync lockfile inside Node container
         stage('Sync NPM Lockfile') {
             steps {
                 script {
                     docker.image('node:18-alpine').inside {
+                        // Use a writable cache directory
+                        sh 'export NPM_CONFIG_CACHE=/app/.npm-cache'
                         sh 'rm -rf node_modules package-lock.json'
                         sh 'npm install'
 
