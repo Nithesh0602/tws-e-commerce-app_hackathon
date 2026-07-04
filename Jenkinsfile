@@ -28,32 +28,16 @@ pipeline {
             }
         }
 
-stage('Sync NPM Lockfile') {
-    steps {
-        script {
-            docker.image('node:18').inside {
-                // Clean old modules and lockfile
-                sh 'rm -rf node_modules package-lock.json'
-
-                // Run npm install with custom cache inline
-                sh 'NPM_CONFIG_CACHE=$WORKSPACE/.npm-cache npm install'
-
-                // Configure Git identity
-                sh 'git config user.email "ci-bot@example.com"'
-                sh 'git config user.name "CI Bot"'
-
-                // Commit and push updated lockfile
-                sh 'git add package-lock.json'
-                sh 'git commit -m "chore: sync package-lock.json with package.json" || echo "No changes to commit"'
-                sh 'git push origin ${env.GIT_BRANCH}'
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    docker.image('node:18').inside {
+                        // Deterministic install using lockfile
+                        sh 'npm ci'
+                    }
+                }
             }
         }
-    }
-}
-
-
-
-
         
         stage('Build Docker Images') {
             parallel {
