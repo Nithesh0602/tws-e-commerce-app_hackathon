@@ -35,7 +35,7 @@ stage('Sync NPM Lockfile') {
                 // Clean old modules and lockfile
                 sh 'rm -rf node_modules package-lock.json'
 
-                // Run npm install with custom cache in one line
+                // Run npm install with custom cache inline
                 sh 'NPM_CONFIG_CACHE=$WORKSPACE/.npm-cache npm install'
 
                 // Configure Git identity
