@@ -32,11 +32,17 @@ stage('Sync NPM Lockfile') {
     steps {
         script {
             docker.image('node:18').inside {
+                // Clean old modules and lockfile
                 sh 'rm -rf node_modules package-lock.json'
-                sh 'export NPM_CONFIG_CACHE=$WORKSPACE/.npm-cache && npm install'
 
+                // Run npm install with custom cache in one line
+                sh 'NPM_CONFIG_CACHE=$WORKSPACE/.npm-cache npm install'
+
+                // Configure Git identity
                 sh 'git config user.email "ci-bot@example.com"'
                 sh 'git config user.name "CI Bot"'
+
+                // Commit and push updated lockfile
                 sh 'git add package-lock.json'
                 sh 'git commit -m "chore: sync package-lock.json with package.json" || echo "No changes to commit"'
                 sh 'git push origin ${env.GIT_BRANCH}'
@@ -44,6 +50,7 @@ stage('Sync NPM Lockfile') {
         }
     }
 }
+
 
 
 
