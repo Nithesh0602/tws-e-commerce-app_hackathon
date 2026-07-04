@@ -32,8 +32,11 @@ pipeline {
             steps {
                 script {
                     docker.image('node:18').inside {
-                        // Deterministic install using lockfile
-                        sh 'npm ci'
+                        // Create a writable cache directory inside the Jenkins workspace
+                        sh 'mkdir -p $WORKSPACE/.npm-cache'
+
+                        // Run npm ci with custom cache to avoid permission errors
+                        sh 'NPM_CONFIG_CACHE=$WORKSPACE/.npm-cache npm ci'
                     }
                 }
             }
