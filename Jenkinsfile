@@ -28,24 +28,27 @@ pipeline {
             }
         }
 
-        stage('Sync NPM Lockfile') {
-            steps {
-                script {
-                    docker.image('node:18-alpine').inside {
-                        // Use a writable cache directory
-                        sh 'export NPM_CONFIG_CACHE=/app/.npm-cache'
-                        sh 'rm -rf node_modules package-lock.json'
-                        sh 'npm install'
+stage('Sync NPM Lockfile') {
+    steps {
+        script {
+            docker.image('node:18-alpine').inside {
+                // Create a writable cache directory inside the workspace
+                sh 'mkdir -p /var/lib/jenkins/workspace/easyshop/.npm-cache'
 
-                        sh 'git config user.email "ci-bot@example.com"'
-                        sh 'git config user.name "CI Bot"'
-                        sh 'git add package-lock.json'
-                        sh 'git commit -m "chore: sync package-lock.json with package.json" || echo "No changes to commit"'
-                        sh 'git push origin ${env.GIT_BRANCH}'
-                    }
-                }
+                // Point npm to use that cache
+                sh 'export NPM_CONFIG_CACHE=/var/lib/jenkins/workspace/easyshop/.npm-cache && npm install'
+
+                // Configure Git identity for CI commit
+                sh 'git config user.email "ci-bot@example.com"'
+                sh 'git config user.name "CI Bot"'
+                sh 'git add package-lock.json'
+                sh 'git commit -m "chore: sync package-lock.json with package.json" || echo "No changes to commit"'
+                sh 'git push origin ${env.GIT_BRANCH}'
             }
         }
+    }
+}
+
         
         stage('Build Docker Images') {
             parallel {
